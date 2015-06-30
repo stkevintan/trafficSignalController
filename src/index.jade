@@ -1,0 +1,49 @@
+//Created by kevin on 15-6-30.
+- var _pc={href:'javascript:void(0)'};
+- var _hide={style:'display:none'};
+- var _title='信号控制';
+mixin _style(name)
+    link(href='assets/css/' + name + '.css',rel='stylesheet')
+mixin _script(name)
+    script(src='assets/js/' + name + '.js')
+mixin _icon(name,attr)
+    if attr
+        span.glyphicon(class='glyphicon-' + name)&attributes(attr)
+    else
+        span.glyphicon(class='glyphicon-' + name)
+mixin _anchor(code,attr)
+    if(attr)
+        a(href="javascript:" + code)&attributes(attr)
+            if block
+                block
+    else
+        a(href="javascript:" + code)
+            if block
+                block
+
+doctype
+html(lang="zh-CN")
+    head
+        title=_title
+        meta(charset="UTF-8")
+        // load stylesheet
+        - each name in ['normalize','foundation.min','my']
+            +_style(name)
+    body
+        nav.top-bar(data-topbar)
+            ul.title-area
+                li.name: h1: a&attributes(_pc)=_title
+        //main wrapper
+        .wrapper
+            form
+                .row
+                    .large-12.columns
+                        .row.collapse
+                            .small-10.columns
+                                input(type='text',placeholder='输入到达率')
+                            .small-2.columns
+                                +_anchor('0',{class:'button postfix disable'}) 确定
+
+        - each name in ['vendor/jquery','foundation.min','my']
+            +_script(name)
+

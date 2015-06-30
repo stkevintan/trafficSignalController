@@ -1,0 +1,20 @@
+{
+  "name": "traffic",
+  "version": "1.0.0",
+  "description": "A traffic signal controller",
+  "main": "dist/index.html",
+  "window":{
+    "title":"信号控制算法",
+    "toolbar":true,
+    "frame":true,
+    "width":1122,
+    "height":600
+  },
+  "author": "kevin",
+  "license": "MIT",
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-jade": "^1.0.1",
+    "gulp-stylus": "^2.0.5"
+  }
+}
