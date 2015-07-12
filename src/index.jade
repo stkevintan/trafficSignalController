@@ -33,17 +33,50 @@ html(lang="zh-CN")
         nav.top-bar(data-topbar)
             ul.title-area
                 li.name: h1: a&attributes(_pc)=_title
-        //main wrapper
-        .wrapper
-            form
-                .row
-                    .large-12.columns
-                        .row.collapse
-                            .small-10.columns
-                                input(type='text',placeholder='输入到达率')
-                            .small-2.columns
-                                +_anchor('0',{class:'button postfix disable'}) 确定
+        section.wrapper.row.all-height
+            #sidebar.large-3.medium-4.columns.all-height
+                #tab1
+                    ul.breadcrumbs
+                        li.current: +_anchor('0') 周期数据
+                    //.row.collapse
+                    //    .small-2.large-3.columns
+                    //        span.prefix μ
+                    //    .small-10.large-9.columns
+                    //        input#aver(type='number',placeholder='均值')
+                    //.row.collapse
+                    //    .small-2.large-3.columns
+                    //        span.prefix σ
+                    //    .small-10.large-9.columns
+                    //        input#stdd(type='number',placeholder='方差')
+                    //.row.collapse
+                    //    .small-2.large-3.columns
+                    //        span.prefix λ
+                    //    .small-10.large-9.columns
+                    //        input#rate(type='number',placeholder='率参数')
+                    input#L(type='number',placeholder='周期总损失时间')
+                    input#n(type='number',placeholder='周期相位数')
 
+                    +_anchor('next()',{class:'button fill expand'}) 继续
+                span.space
+                #tab2
+                    ul.breadcrumbs
+                        li: +_anchor('switchTab(0)') 周期数据
+                        li.current: +_anchor('0') 相位分析
+                    .in-panel
+                        .in-group
+                            label 第1相位
+                            input#a(type='number',placeholder='可靠度')
+                            input#s(type='number',placeholder='关键进口道饱和流率(pcu/min)')
+                            input#A(type='number',placeholder='黄灯时间')
+                            textarea#v(placeholder='到达率vi 以空格分隔')
+
+                        .pagination-centered
+                            ul.pagination(role='menubar',aria-label="Pagination")
+                        ul#in-panel-opt.button-group.row.collapse
+                            li.small-6: +_anchor('submit()',{class: 'button fill expand'}) 分析
+                            li.small-6: +_anchor('switchTab(0)',{class:'button fill expand'}) 返回
+            #result.large-9.medium-8.columns
+                ul.terminal.no-bullet
         - each name in ['vendor/jquery','foundation.min','my']
             +_script(name)
 

@@ -1,3 +1,119 @@
+@font-face
+  font-family courier
+  font-style normal
+  font-weight normal
+  src url('../font/Courier Prime.ttf')
+
+@font-face
+  font-family courier
+  font-weight bold
+  font-style normal
+  src url('../font/Courier Prime Bold.ttf')
+
+.row
+  max-width 80rem
+
+.all-height
+  height 100%
+  min-height 100%
+
+.np-btn
+  padding 0
+
+nav.top-bar
+  position fixed
+  top 0
+  width 100%
+  left 0
+  z-index 99
+
 .wrapper
-  margin-top 50px
-  padding 20px
+  padding-top 45px
+
+#sidebar
+  background #fafafa none repeat scroll 0 0
+  padding 32px 20px
+  input:focus
+    background-color #ffffff
+  #tab2
+    display none
+  .fill.button
+    height 30px
+    line-height 30px
+    font-size 12px
+    padding 0
+    margin 0
+
+@keyframes cursor {
+  from {
+    opacity: 1
+  }
+  50% {
+    opacity: 1
+  }
+  51% {
+    opacity: 0
+  }
+  to {
+    opacity: 0
+  }
+}
+
+@keyframes show-line {
+  from {
+    width: 100%
+  }
+  to {
+    width: 0
+  }
+}
+
+.tl-err
+  color #F5725C
+  font-weight bold
+
+.tl-title
+  color #7DEFB6
+  font-weight bold
+
+#result
+  padding-top 20px
+  .terminal
+    font-family courier
+    font-size 15px
+    width 100%
+    height 450px
+    overflow: auto
+    padding 15px
+    color #ffffff
+    background-color #5F5F5F
+    white-space nowrap
+    li
+      position relative
+      margin-left 30px
+      &:before
+        content '>> '
+        color #7DEFB6
+        position absolute
+        left -30px
+        top 0
+      span
+        position relative
+        display inline-block
+      &:last-child .cover:after
+        content '|'
+        -webkit-animation cursor 1s linear infinite
+      .cover
+        position absolute
+        background-color #5f5f5f
+        height 100%
+        width 100%
+        top 0
+        right 0
+
+.in-panel
+  label
+    font-weight bold
+    padding-bottom 10px
+  #in-panel-opt li
+    margin 0

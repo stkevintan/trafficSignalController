@@ -16,8 +16,11 @@ gulp.task('css', function () {
         compress: true
     })).pipe(gulp.dest('./dist/assets/css/'));
 });
+gulp.task('node', function () {
+    return gulp.src('./src/modules/*.js').pipe(gulp.dest('./dist/lib/'));
+})
 gulp.task('js', function () {
     return gulp.src('./src/my.js').pipe(gulp.dest('./dist/assets/js/'));
 });
 
-gulp.task('default', ['html', 'css', 'js']);
+gulp.task('default', ['html', 'css', 'js','node']);
