@@ -6,7 +6,7 @@ var win = gui.Window.get();
 var util = require('./lib/Util');
 var stats = require('./lib/Stats');
 $(document).foundation();
-const TEST = false;
+const TEST = true;
 
 function createDOM(name, opts, inner) {
     var dom = document.createElement(name);
@@ -20,9 +20,6 @@ function createDOM(name, opts, inner) {
 }
 var $n = $('#n');
 var $L = $('#L');
-//var $aver = $('#aver');
-//var $stdd = $('#stdd');
-//var $rate = $('#rate');
 String.prototype.toNumber = function () {
     var x = Number(this);
     if (x == 0 && !util.isNumber(this))return NaN;
@@ -46,10 +43,10 @@ var data;
  */
 dataModel.prototype.analyze = function () {
     var n = this.n;
-    var L = this.L;
     var eps = 0.05;
     var B1Array = [];
     var B2Array = [];
+    var TESTB1Array = [3.854, 6.27, 3.734, 5.432];
     for (var i = 0; i < n; i++) {
         terminal.writeTitle('第' + (1 + i) + '相位');
         var f = this.form[i];
@@ -70,6 +67,9 @@ dataModel.prototype.analyze = function () {
             terminal.writeLine('到达率符合正态分布  ' +
                 '均值μ = ' + res1.aver.toFixed(4) + ' 标准差σ = ' + res1.stdd.toFixed(4));
             b1 = al.norm1(res1.aver, res1.stdd, res1.invFunc);
+            if (TEST) {
+                b1 = TESTB1Array[i];
+            }
             b2 = al.norm2(b1);
         } else {
             //指数分布
@@ -89,7 +89,7 @@ dataModel.prototype.analyze = function () {
     }
 
     terminal.writeTitle('相位清空可靠度算法分析结果');
-    var ret1 = this.calculate(B1Array);
+    var ret1 = this.calculate(TEST ? TESTB1Array : B1Array);
     terminal.writeLine('C = ' + ret1.C.toFixed(4));
     terminal.writeLine('g[array] = ' + ret1.gs.map(function (s) {
             return s.toFixed(4)
@@ -116,7 +116,7 @@ dataModel.prototype.calculate = function (Bs) {
     }
     gs.push((L + stats.arrAdd(As)) * _Bs[0] / (BsToT - stats.arrAdd(_Bs)));
     if (TEST) {
-        console.log('gs[0]', L, stats.arrAdd(As), BsToT, stats.arrAdd(_Bs));
+
     }
     for (var i = 1, C = gs[0] * Bs[0]; i < n; i++) {
         gs.push(C / Bs[i]);
@@ -133,6 +133,7 @@ var algorithms = function (f) {
 algorithms.prototype.Xs = [0.5, 0.7, 0.85];
 //正态分布相位清空可靠度算法
 algorithms.prototype.norm1 = function (aver, stdd, inv) {
+    if (TEST)console.log(aver, stdd, inv(this.a));
     return this.s / (aver + stdd * inv(this.a));
 }
 
@@ -184,6 +185,7 @@ var switchTab = (function () {
         current ^= 1;
     }
 })();
+
 var next = function () {
     var n = $n.val().toNumber();
     var L = $L.val().toNumber();
@@ -357,6 +359,7 @@ var terminal = (function () {
         if (playing == false) {
             tl.find('li').last().remove();
             tl.append(Q.front().li);
+            scroll(Q.front().li);
             requestAnimationFrame(animate);
         }
     }
@@ -366,22 +369,36 @@ var terminal = (function () {
     ret.writeTitle = function (msg) {
         ret.writeLine('<span class="tl-title">' + msg + '</span>');
     }
+    var scroll = (function () {
+        var H = tl[0].clientHeight;
+        return function (li) {
+            var h = li.offsetHeight;
+            var y = li.offsetTop;
+            if (H < h + y) {
+                tl.scrollTop(y+h);
+            }
+        }
+    })();
     var animate = function () {
-        if (Q.empty())return;
+        if (Q.empty())return;// just in case
         var w = Q.front().cover.width();
         if (w > 0) {
-            Q.front().cover.width(w - 5);
+            Q.front().cover.width(w-5);
             playing = true;
             requestAnimationFrame(animate);
         } else {
             Q.pop();
             if (!Q.empty()) {
                 tl.append(Q.front().li);
+                scroll(Q.front().li);
                 requestAnimationFrame(animate);
             } else {
                 playing = false;
-                tl.append(createLine('').li);
+                var li=createLine('').li;
+                tl.append(li);
+                scroll(li);
             }
+
         }
     }
 

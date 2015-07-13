@@ -4,8 +4,8 @@
   "description": "A traffic signal controller",
   "main": "dist/index.html",
   "window": {
-    "title": "信号控制算法",
-    "toolbar": true,
+    "title": "基于可靠性的单交叉口信号控制算法",
+    "toolbar": false,
     "frame": true,
     "width": 1122,
     "height": 600
