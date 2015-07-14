@@ -6,7 +6,6 @@ var win = gui.Window.get();
 var util = require('./lib/Util');
 var stats = require('./lib/Stats');
 $(document).foundation();
-const TEST = true;
 
 function createDOM(name, opts, inner) {
     var dom = document.createElement(name);
@@ -41,16 +40,13 @@ var data;
  7 6 8 8 7 8
  4 5 6 4 5 5
  */
-dataModel.prototype.analyze = function () {
-    var n = this.n;
-    var eps = 0.05;
-    var B1Array = [];
-    var B2Array = [];
-    var TESTB1Array = [3.854, 6.27, 3.734, 5.432];
+dataModel.prototype.analyze = function (x) {
+    var n = this.n, eps = 0.05;
+    var Bs = [];
+    terminal.writeLine('================================');
     for (var i = 0; i < n; i++) {
         terminal.writeTitle('第' + (1 + i) + '相位');
-        var f = this.form[i];
-        var al = new algorithms(f);
+        var f = this.form[i], al = new algorithms(f);
         terminal.writeLine('Start Single-Sample Kolmogorov-Smirnov Test...  Let α = 0.5');
         var res1 = stats.ksTest(f.v, 'norm');
         var res2 = stats.ksTest(f.v, 'expon');
@@ -61,50 +57,32 @@ dataModel.prototype.analyze = function () {
             terminal.writeError('到达率既不符合正态分布也不符合指数分布');
             return;
         }
-        var b1, b2;
+        var b;
         if (res1.p >= res2.p) {
             //正态分布
-            terminal.writeLine('到达率符合正态分布  ' +
-                '均值μ = ' + res1.aver.toFixed(4) + ' 标准差σ = ' + res1.stdd.toFixed(4));
-            b1 = al.norm1(res1.aver, res1.stdd, res1.invFunc);
-            if (TEST) {
-                b1 = TESTB1Array[i];
-            }
-            b2 = al.norm2(b1);
+            terminal.writeLine('到达率符合正态分布  ' + '均值μ = ' + res1.aver.toFixed(4) + ' 标准差σ = ' + res1.stdd.toFixed(4));
+            b = al.norm(res1.aver, res1.stdd, res1.invFunc, x);
         } else {
             //指数分布
-            terminal.writeLine('到达率符合指数分布  ' +
-                '率参数λ = ' + res2.rate.toFixed(4));
-            b1 = al.expon1(res2.rate);
-            b2 = al.expon2(b1);
+            terminal.writeLine('到达率符合指数分布  ' + '率参数λ = ' + res2.rate.toFixed(4));
+            b = al.expon(res2.rate, x);
         }
-        B1Array.push(b1);
-        B2Array.push(b2);
-        var bret = 'B' + '<sub>' + (i + 1) + '</sub>' + ' = ';
-        bret += b2.map(function (val, index) {
-            return val.toFixed(4) + '(X = ' + al.Xs[index] + ')';
-        }).join(',');
-        terminal.writeLine('1.相位清空可靠度算法B' + '<sub>' + (i + 1) + '</sub>' + ' = ' + b1.toFixed(4));
-        terminal.writeLine('2.服务水平可靠度算法' + bret);
+        Bs.push(b);
+        //var bret = 'B' + '<sub>' + (i + 1) + '</sub>' + ' = ';
+        //bret += b2.map(function (val, index) {
+        //    return val.toFixed(4) + '(X = ' + al.Xs[index] + ')';
+        //}).join(',');
+        //terminal.writeLine('1.相位清空可靠度算法B' + '<sub>' + (i + 1) + '</sub>' + ' = ' + b1.toFixed(4));
+        //terminal.writeLine('2.服务水平可靠度算法' + bret);
     }
 
-    terminal.writeTitle('相位清空可靠度算法分析结果');
-    var ret1 = this.calculate(TEST ? TESTB1Array : B1Array);
-    terminal.writeLine('C = ' + ret1.C.toFixed(4));
-    terminal.writeLine('g[array] = ' + ret1.gs.map(function (s) {
-            return s.toFixed(4)
-        }));
-    terminal.writeTitle('服务水平可靠度算法分析结果');
-    for (var j = 0; j < al.Xs.length; j++) {
-        terminal.writeLine('当X = ' + al.Xs[j] + '时');
-        var ret2 = this.calculate(B2Array.map(function (v) {
-            return v[j];
-        }));
-        terminal.writeLine('C = ' + ret2.C.toFixed(4));
-        terminal.writeLine('g[array] = ' + ret2.gs.map(function (s) {
-                return s.toFixed(4)
-            }));
-    }
+    terminal.writeTitle('计算结果：' + (x ? '（服务水平可靠度算法）' : '（相位清空可靠度算法）'));
+    var ret1 = this.calculate(Bs);
+    terminal.writeLine('周期 C = ' + ret1.C.toFixed(4));
+    ret1.gs.forEach(function (val, index) {
+        index++;
+        terminal.writeLine('第' + index + '相位绿灯时间 g<sub>' + index + '</sub> = ' + val.toFixed(4));
+    });
 }
 dataModel.prototype.calculate = function (Bs) {
     var n = this.n, L = this.L, As = this.form.map(function (o) {
@@ -115,9 +93,6 @@ dataModel.prototype.calculate = function (Bs) {
         _Bs[i] = BsToT / Bs[i];
     }
     gs.push((L + stats.arrAdd(As)) * _Bs[0] / (BsToT - stats.arrAdd(_Bs)));
-    if (TEST) {
-
-    }
     for (var i = 1, C = gs[0] * Bs[0]; i < n; i++) {
         gs.push(C / Bs[i]);
     }
@@ -130,33 +105,19 @@ var algorithms = function (f) {
     this.s = f.s;
     this.a = f.a;
 }
-algorithms.prototype.Xs = [0.5, 0.7, 0.85];
-//正态分布相位清空可靠度算法
-algorithms.prototype.norm1 = function (aver, stdd, inv) {
-    if (TEST)console.log(aver, stdd, inv(this.a));
-    return this.s / (aver + stdd * inv(this.a));
-}
 
-//正态分布服务水平可靠度算法
-algorithms.prototype.norm2 = function (tmp) {
-    tmp = tmp || this.norm1.apply(this, Array.prototype.slice.call(arguments, 1));
-    return this.Xs.map(function (x) {
-        return x * tmp;
-    });
+//正态分布相位清空可靠度算法
+algorithms.prototype.norm = function (aver, stdd, inv, scale) {
+    scale = scale || 1;
+    return scale * this.s / (aver + stdd * inv(this.a));
 }
 
 //指数分布相位清空可靠度算法
-algorithms.prototype.expon1 = function (rate) {
-    return (-rate * this.s) / Math.log(1 - this.a);
+algorithms.prototype.expon = function (rate, scale) {
+    scale = scale || 1;
+    return scale * (-rate * this.s) / Math.log(1 - this.a);
 }
 
-//指数分布服务水平可靠度算法
-algorithms.prototype.expon2 = function (tmp) {
-    tmp = tmp || this.expon1.apply(this, Array.prototype.slice.call(arguments, 1));
-    return this.prototype.Xs.map(function (x) {
-        return x * tmp;
-    });
-}
 $L.keydown(function (e) {
     if (e.which == 13) {
         $n.focus();
@@ -197,29 +158,38 @@ var next = function () {
         terminal.writeError('Invalid Params');
     }
 }
-var submit = function () {
-    if (TEST) {
-        data = new dataModel(4, 12);
-        data.form = [
-            {a: 0.8, s: 30 / 60, A: 3, v: [6 / 60, 7 / 60, 8 / 60, 7 / 60, 7 / 60, 8 / 60]},
-            {a: 0.8, s: 30 / 60, A: 3, v: [3 / 60, 4 / 60, 5 / 60, 4 / 60, 3 / 60, 5 / 60]},
-            {a: 0.8, s: 30 / 60, A: 3, v: [7 / 60, 6 / 60, 8 / 60, 8 / 60, 7 / 60, 8 / 60]},
-            {a: 0.8, s: 30 / 60, A: 3, v: [4 / 60, 5 / 60, 6 / 60, 4 / 60, 5 / 60, 5 / 60]}
-        ]
-        data.analyze();
-        return;
+
+var submit = (function () {
+    var _type = 0;
+    var $label = $('method');
+    var $select = $('select');
+
+    function go() {
+        if (!data.n) {
+            terminal.writeError('Invalid Params');
+            return;
+        }
+        data.form = pagination.getForm();
+        if (!data.form) {
+            terminal.writeError('Invalid Params');
+            return;
+        }
+
+        data.analyze(_type == 1 ? $select.val().toNumber() : null);
     }
-    if (!data.n) {
-        terminal.writeError('Invalid Params');
-        return;
+
+    return function (type) {
+        if (type == 1) {
+            $label.text('服务水平');
+            $select.show();
+            _type = 1;
+        } else if (type == 0) {
+            $label.text('相位清空');
+            $select.hide();
+            _type = 0;
+        } else go();
     }
-    data.form = pagination.getForm();
-    if (!data.form) {
-        terminal.writeError('Invalid Params');
-        return;
-    }
-    data.analyze();
-}
+})();
 
 var pagination = (function () {
     var ret = {};
@@ -375,7 +345,7 @@ var terminal = (function () {
             var h = li.offsetHeight;
             var y = li.offsetTop;
             if (H < h + y) {
-                tl.scrollTop(y+h);
+                tl.scrollTop(y + h);
             }
         }
     })();
@@ -383,7 +353,7 @@ var terminal = (function () {
         if (Q.empty())return;// just in case
         var w = Q.front().cover.width();
         if (w > 0) {
-            Q.front().cover.width(w-5);
+            Q.front().cover.width(w - 5);
             playing = true;
             requestAnimationFrame(animate);
         } else {
@@ -394,7 +364,7 @@ var terminal = (function () {
                 requestAnimationFrame(animate);
             } else {
                 playing = false;
-                var li=createLine('').li;
+                var li = createLine('').li;
                 tl.append(li);
                 scroll(li);
             }
@@ -408,8 +378,17 @@ var terminal = (function () {
     return ret;
 })();
 terminal.init();
-if (TEST) {
-    switchTab(1);
-    submit();
+
+function test(x) {
+    //switchTab(1);
+    data = new dataModel(4, 12);
+    data.form = [
+        {a: 0.8, s: 30 / 60, A: 3, v: [6 / 60, 7 / 60, 8 / 60, 7 / 60, 7 / 60, 8 / 60]},
+        {a: 0.8, s: 30 / 60, A: 3, v: [3 / 60, 4 / 60, 5 / 60, 4 / 60, 3 / 60, 5 / 60]},
+        {a: 0.8, s: 30 / 60, A: 3, v: [7 / 60, 6 / 60, 8 / 60, 8 / 60, 7 / 60, 8 / 60]},
+        {a: 0.8, s: 30 / 60, A: 3, v: [4 / 60, 5 / 60, 6 / 60, 4 / 60, 5 / 60, 5 / 60]}
+    ]
+    data.analyze(x);
 }
+
 

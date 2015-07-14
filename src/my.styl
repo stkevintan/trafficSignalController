@@ -1,3 +1,4 @@
+@charset "utf-8"
 @font-face
   font-family courier
   font-style normal
@@ -9,6 +10,21 @@
   font-weight bold
   font-style normal
   src url('../font/Courier Prime Bold.ttf')
+
+@font-face
+  font-family syht
+  font-weight normal
+  font-style normal
+  src url('../font/SourceHanSansCN-Normal.otf')
+
+@font-face
+  font-family msyh
+  font-weight normal
+  font-style normal
+  src url('../font/msyh.ttc')
+
+html, body
+  font-family '微软雅黑', syht, courier
 
 .row
   max-width 80rem
@@ -42,7 +58,6 @@ nav.top-bar
     line-height 30px
     font-size 12px
     padding 0
-    margin 0
 
 @keyframes cursor {
   from {

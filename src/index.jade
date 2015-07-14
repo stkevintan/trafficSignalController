@@ -33,6 +33,15 @@ html(lang="zh-CN")
         nav.top-bar(data-topbar)
             ul.title-area
                 li.name: h1: a&attributes(_pc)=_title
+            section.top-bar-section
+                ul.right
+                    li.has-dropdown
+                        +_anchor('0') 测试
+                        ul.dropdown
+                            li: +_anchor('test()') 测试相位清空算法
+                            li: +_anchor('test(0.5)') 测试服务水平算法(X=0.5)
+                            li: +_anchor('test(0.7)') 测试服务水平算法（X=0.7)
+                            li: +_anchor('test(0.85)') 测试服务水平算法(X=0.85)
         section.wrapper.row.all-height
             #sidebar.large-3.medium-4.columns.all-height
                 #tab1
@@ -72,9 +81,20 @@ html(lang="zh-CN")
 
                         .pagination-centered
                             ul.pagination(role='menubar',aria-label="Pagination")
-                        ul#in-panel-opt.button-group.row.collapse
-                            li.small-6: +_anchor('submit()',{class: 'button fill expand'}) 分析
-                            li.small-6: +_anchor('switchTab(0)',{class:'button fill expand'}) 返回
+                        +_anchor('submit()',{class:'button fill expand split'})
+                            | 开始计算（
+                            method 相位清空
+                            | ）
+                            span(data-dropdown='in-panel-opt')
+                        br
+                        ul#in-panel-opt.f-dropdown(data-dropdown-content)
+                            li: +_anchor('submit(0)') 相位清空可靠度
+                            li: +_anchor('submit(1)') 服务水平可靠度
+                        select&attributes(_hide)
+                            option(value='0.5',selected) 一级服务水平 X=0.5
+                            option(value='0.7') 二级服务水平 X=0.7
+                            option(value='0.85') 三级服务水平 X=0.85
+                           // li: +_anchor('switchTab(0)',{class:'button fill expand'}) 返回
             #result.large-9.medium-8.columns
                 ul.terminal.no-bullet
         - each name in ['vendor/jquery','foundation.min','my']
