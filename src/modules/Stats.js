@@ -35,9 +35,8 @@ var ksTest = function (arr, type) {
         var v = variance(arr, {'bias': true});
         ret.aver = u;
         ret.stdd = Math.sqrt(v);
-        Fx.norm.mean(u).variance(v);
-        ret.invFunc = Fx.norm.inv();
-        cdf = Fx.norm.cdf(arr);
+        ret.invFunc = normDist().inv();
+        cdf = Fx.norm.mean(u).variance(v).cdf(arr);
     }
     var DPlus = 0, DMin = 0;
     for (var i = 0; i < n; i++) {

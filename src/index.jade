@@ -1,7 +1,7 @@
 //Created by kevin on 15-6-30.
 - var _pc={href:'javascript:void(0)'};
 - var _hide={style:'display:none'};
-- var _title='基于可靠性的单交叉口信号控制算法';
+- var _title='基于可靠度的单交叉口信号配时系统';
 mixin _style(name)
     link(href='assets/css/' + name + '.css',rel='stylesheet')
 mixin _script(name)
@@ -35,65 +35,63 @@ html(lang="zh-CN")
                 li.name: h1: a&attributes(_pc)=_title
             section.top-bar-section
                 ul.right
+                    li.active: +_anchor('terminal.clear()') 清空终端
                     li.has-dropdown
                         +_anchor('0') 测试
                         ul.dropdown
-                            li: +_anchor('test()') 测试相位清空算法
+                            li: +_anchor('test(1)') 测试相位清空算法
                             li: +_anchor('test(0.5)') 测试服务水平算法(X=0.5)
                             li: +_anchor('test(0.7)') 测试服务水平算法（X=0.7)
                             li: +_anchor('test(0.85)') 测试服务水平算法(X=0.85)
         section.wrapper.row.all-height
             #sidebar.large-3.medium-4.columns.all-height
-                #tab1
+                #tab1(data-abide)
                     ul.breadcrumbs
                         li.current: +_anchor('0') 周期数据
-                    //.row.collapse
-                    //    .small-2.large-3.columns
-                    //        span.prefix μ
-                    //    .small-10.large-9.columns
-                    //        input#aver(type='number',placeholder='均值')
-                    //.row.collapse
-                    //    .small-2.large-3.columns
-                    //        span.prefix σ
-                    //    .small-10.large-9.columns
-                    //        input#stdd(type='number',placeholder='方差')
-                    //.row.collapse
-                    //    .small-2.large-3.columns
-                    //        span.prefix λ
-                    //    .small-10.large-9.columns
-                    //        input#rate(type='number',placeholder='率参数')
-                    input#L(type='number',placeholder='周期总损失时间')
-                    input#n(type='number',placeholder='周期相位数')
+                    .abide-area
+                        input#L(type='number',placeholder='周期总损失时间',required,pattern="^[1-9]\\d*")
+                        small.error 周期总损失时间应该为正整数
+                    .abide-area
+                        input#n(type='number',placeholder='周期相位数',required,pattern="^[1-9]\\d*")
+                        small.error 周期相位数应该为正整数
 
-                    +_anchor('next()',{class:'button fill expand'}) 继续
+                    +_anchor('next()',{class:'button tiny expand'}) 继续
                 span.space
                 #tab2
                     ul.breadcrumbs
                         li: +_anchor('switchTab(0)') 周期数据
                         li.current: +_anchor('0') 相位分析
-                    .in-panel
+                    .in-panel(data-abide)
                         .in-group
                             label 第1相位
-                            input#a(type='number',placeholder='可靠度')
-                            input#s(type='number',placeholder='关键进口道饱和流率(pcu/min)')
-                            input#A(type='number',placeholder='黄灯时间')
-                            textarea#v(placeholder='到达率vi 以空格分隔')
+                            .abide-area
+                                input#a(type='number',placeholder='可靠度[0.5,1]',required,pattern="^1$|^0\\.(5$|[6-9]\\d*)")
+                                small.error 可靠度范围[0.5,1]
+                            .abide-area
+                                input#s(type='number',placeholder='关键进口道饱和流率(pcu/min)',required,pattern="^[1-9]\\d*|^[1-9]\\d*\\.\\d*|0\\.\\d*[1-9]\\d*$")
+                                small.error 关键进口道饱和流率不能为负数、0或空
+                            .abide-area
+                                input#A(type='number',placeholder='黄灯时间',required,pattern="^[1-9]\\d*|^[1-9]\\d*\\.\\d*|0\\.\\d*[1-9]\\d*$")
+                                small.error 黄灯时间不能为负数、0或空
+                            textarea#v(placeholder='到达率vi(pcu/min) 以空格分隔')
 
                         .pagination-centered
                             ul.pagination(role='menubar',aria-label="Pagination")
-                        +_anchor('submit()',{class:'button fill expand split'})
+                        +_anchor('submit()',{class:'button tiny expand split'})
                             | 开始计算（
                             method 相位清空
                             | ）
-                            span(data-dropdown='in-panel-opt')
+                            span(data-dropdown='in-panel-opt',data-options="align:top")
                         br
                         ul#in-panel-opt.f-dropdown(data-dropdown-content)
-                            li: +_anchor('submit(0)') 相位清空可靠度
-                            li: +_anchor('submit(1)') 服务水平可靠度
-                        select&attributes(_hide)
-                            option(value='0.5',selected) 一级服务水平 X=0.5
-                            option(value='0.7') 二级服务水平 X=0.7
-                            option(value='0.85') 三级服务水平 X=0.85
+                            li: +_anchor('submit(1)') 相位清空可靠度
+                            li: +_anchor('submit(0.5)') 一级服务水平可靠度 X=0.5
+                            li: +_anchor('submit(0.7)') 二级服务水平可靠度 X=0.7
+                            li: +_anchor('submit(0.85)') 三级服务水平可靠度 X=0.85
+                        //select&attributes(_hide)
+                        //    option(value='0.5',selected) 一级服务水平 X=0.5
+                        //    option(value='0.7') 二级服务水平 X=0.7
+                        //    option(value='0.85') 三级服务水平 X=0.85
                            // li: +_anchor('switchTab(0)',{class:'button fill expand'}) 返回
             #result.large-9.medium-8.columns
                 ul.terminal.no-bullet

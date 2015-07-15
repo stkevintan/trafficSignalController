@@ -53,11 +53,11 @@ nav.top-bar
     background-color #ffffff
   #tab2
     display none
-  .fill.button
-    height 30px
-    line-height 30px
+  .button.tiny
     font-size 12px
-    padding 0
+  .button.split span:after
+    top 25%
+    border-color transparent transparent #ffffff transparent
 
 @keyframes cursor {
   from {
@@ -71,15 +71,6 @@ nav.top-bar
   }
   to {
     opacity: 0
-  }
-}
-
-@keyframes show-line {
-  from {
-    width: 100%
-  }
-  to {
-    width: 0
   }
 }
 

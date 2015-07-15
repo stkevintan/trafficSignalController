@@ -40,6 +40,7 @@ var data;
  7 6 8 8 7 8
  4 5 6 4 5 5
  */
+
 dataModel.prototype.analyze = function (x) {
     var n = this.n, eps = 0.05;
     var Bs = [];
@@ -76,7 +77,7 @@ dataModel.prototype.analyze = function (x) {
         //terminal.writeLine('2.服务水平可靠度算法' + bret);
     }
 
-    terminal.writeTitle('计算结果：' + (x ? '（服务水平可靠度算法）' : '（相位清空可靠度算法）'));
+    terminal.writeTitle('计算结果：' + (x ? '（相位清空可靠度算法）' : '（服务水平可靠度算法）'));
     var ret1 = this.calculate(Bs);
     terminal.writeLine('周期 C = ' + ret1.C.toFixed(4));
     ret1.gs.forEach(function (val, index) {
@@ -160,9 +161,13 @@ var next = function () {
 }
 
 var submit = (function () {
-    var _type = 0;
-    var $label = $('method');
-    var $select = $('select');
+    var $label = $('method'), _x = 1;
+    var _map = {
+        1: '相位清空',
+        0.5: '一级服务水平',
+        0.7: '二级服务水平',
+        0.85: '三级服务水平'
+    }
 
     function go() {
         if (!data.n) {
@@ -175,18 +180,13 @@ var submit = (function () {
             return;
         }
 
-        data.analyze(_type == 1 ? $select.val().toNumber() : null);
+        data.analyze(_x);
     }
 
-    return function (type) {
-        if (type == 1) {
-            $label.text('服务水平');
-            $select.show();
-            _type = 1;
-        } else if (type == 0) {
-            $label.text('相位清空');
-            $select.hide();
-            _type = 0;
+    return function (x) {
+        if (_map.hasOwnProperty(x)) {
+            $label.text(_map[x]);
+            _x = x;
         } else go();
     }
 })();
@@ -321,7 +321,14 @@ var terminal = (function () {
             cover: $(cover)
         };
     }
-
+    ret.clear = function () {
+        if (playing) {
+            while (!Q.empty())Q.pop();
+            playing = false;
+        }
+        tl.find('li').slice(1).remove();
+        tl.append(createLine().li);
+    }
     var playing = false;
     var Q = new util.queue();
     ret.writeLine = function (msg) {
@@ -350,7 +357,7 @@ var terminal = (function () {
         }
     })();
     var animate = function () {
-        if (Q.empty())return;// just in case
+        if (Q.empty())return;
         var w = Q.front().cover.width();
         if (w > 0) {
             Q.front().cover.width(w - 5);

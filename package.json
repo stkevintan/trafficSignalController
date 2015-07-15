@@ -4,11 +4,11 @@
   "description": "A traffic signal controller",
   "main": "dist/index.html",
   "window": {
-    "title": "基于可靠性的单交叉口信号控制算法",
+    "title": "基于可靠度的单交叉口信号配时系统",
     "toolbar": false,
     "frame": true,
     "width": 1122,
-    "height": 540
+    "height": 550
   },
   "author": "kevin",
   "license": "MIT",
